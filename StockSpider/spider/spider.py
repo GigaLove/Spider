@@ -25,12 +25,20 @@ class StockSpider:
                 for stock_type in self.stock_types:
                     for stock_name in self.stock_names:
                         stock_url = self.url % (stock_type, stock_name)
-                        request = urllib2.Request(stock_url, None, self.headers)
-                        response = urllib2.urlopen(request)
-                        stock_json = json.loads(response.read(), 'utf-8')
-                        if stock_json is not None and 'success'\
-                                in stock_json and stock_json['success']:
-                            self.parse(stock_name, stock_type, cur_date, stock_json['data'])
+                        try:
+                            request = urllib2.Request(stock_url, None, self.headers)
+                            response = urllib2.urlopen(request)
+                            stock_json = json.loads(response.read(), 'utf-8')
+                            if stock_json is not None and 'success' \
+                                    in stock_json and stock_json['success']:
+                                self.parse(stock_name, stock_type, cur_date, stock_json['data'])
+                        except urllib2.URLError, e:
+                            if hasattr(e, "code"):
+                                print e.code
+                            if hasattr(e, "reason"):
+                                print e.reason
+                        except StandardError, e:
+                            print e.message
                         time.sleep(2)
 
     def parse(self, stock_name, stock_type, date, stock_info):
@@ -50,7 +58,7 @@ class StockSpider:
             return False
         else:
             begin = usa_now.replace(hour=9, minute=30, second=0)
-            end = usa_now.replace(hour=17, minute=0, second=0)
+            end = usa_now.replace(hour=16, minute=0, second=0)
             if begin <= usa_now <= end:
                 return True
             return False
@@ -61,6 +69,7 @@ class StockSpider:
         zone_delta = timedelta(hours=12)
         usa_now = now - zone_delta
         return usa_now.strftime("%Y-%m-%d")
+
 
 if __name__ == '__main__':
     stock_spider = StockSpider()
