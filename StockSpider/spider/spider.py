@@ -13,31 +13,29 @@ class StockSpider:
                'Referer': 'http://batstrading.com'}
     stock_types = ['bzx', 'byx', 'edgx', 'edga']
     stock_names = ['SPY', 'JCP', 'BAC', 'GDX', 'DUST', 'NVDA', 'VXX', 'AAPL', 'EEM', 'MT']
-    data_path = '../data/stock-%s-%s-%s.csv'
+    data_path = '../data/stock-%s-%s.txt'
 
     def __init__(self):
         pass
 
     def spider(self):
         while True:
-            cur_date = self.get_usa_date()
             if self.is_trade_time():
+                cur_date = self.get_usa_date()
                 for stock_type in self.stock_types:
                     for stock_name in self.stock_names:
                         stock_url = self.url % (stock_type, stock_name)
                         request = urllib2.Request(stock_url, None, self.headers)
                         response = urllib2.urlopen(request)
                         stock_json = json.loads(response.read(), 'utf-8')
-                        if stock_json['success']:
-                            self.parse(stock_name, stock_type, stock_json['data'], cur_date)
+                        if stock_json is not None and 'success'\
+                                in stock_json and stock_json['success']:
+                            self.parse(stock_name, stock_type, cur_date, stock_json['data'])
                         time.sleep(2)
 
-    def parse(self, stock_name, stock_type, stock_info, date):
-        # timestamp = date + stock_info['timestamp']
-        # asks = stock_info['asks']
-        # bids = stock_info['bids']
-        # trades = stock_info['trades']
-        with open(self.data_path % (stock_name, stock_type, date), 'a') as f:
+    def parse(self, stock_name, stock_type, date, stock_info):
+        stock_info['timestamp'] = date + ' ' + stock_info['timestamp']
+        with open(self.data_path % (stock_name, stock_type), 'a') as f:
             content = json.dumps(stock_info, encoding='utf-8')
             print content
             f.write(content + '\n')
@@ -47,11 +45,15 @@ class StockSpider:
         now = datetime.now()
         zone_delta = timedelta(hours=12)
         usa_now = now - zone_delta
-        begin = usa_now.replace(hour=9, minute=30, second=0)
-        end = usa_now.replace(hour=16, minute=30, second=0)
-        if begin <= usa_now <= end:
-            return True
-        return False
+        weekday = usa_now.weekday()
+        if weekday == 5 or weekday == 6:
+            return False
+        else:
+            begin = usa_now.replace(hour=9, minute=30, second=0)
+            end = usa_now.replace(hour=17, minute=0, second=0)
+            if begin <= usa_now <= end:
+                return True
+            return False
 
     @staticmethod
     def get_usa_date():
