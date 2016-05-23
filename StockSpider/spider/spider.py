@@ -12,8 +12,9 @@ class StockSpider:
     headers = {'User-Agent': '"Mozilla/5.0 (Windows NT 6.3; WOW64; rv:46.0) Gecko/20100101 Firefox/46.0"',
                'Referer': 'http://batstrading.com'}
     stock_types = ['bzx', 'byx', 'edgx', 'edga']
-    stock_names = ['SPY', 'JCP', 'BAC', 'GDX', 'DUST', 'NVDA', 'VXX', 'AAPL', 'EEM', 'MT']
-    data_path = '../data/stock-%s-%s.txt'
+    # stock_names = ['SPY', 'JCP', 'BAC', 'GDX', 'DUST', 'NVDA', 'VXX', 'AAPL', 'EEM', 'MT']
+    stock_names = ['SPY', 'JCP', 'BAC', 'GDX']
+    data_path = '../stock-data/stock-%s-%s.txt'
 
     def __init__(self):
         pass
@@ -22,8 +23,8 @@ class StockSpider:
         while True:
             if self.is_trade_time():
                 cur_date = self.get_usa_date()
-                for stock_type in self.stock_types:
-                    for stock_name in self.stock_names:
+                for stock_name in self.stock_names:
+                    for stock_type in self.stock_types:
                         stock_url = self.url % (stock_type, stock_name)
                         try:
                             request = urllib2.Request(stock_url, None, self.headers)
@@ -39,7 +40,7 @@ class StockSpider:
                                 print e.reason
                         except StandardError, e:
                             print e.message
-                        time.sleep(2)
+                    time.sleep(1)
 
     def parse(self, stock_name, stock_type, date, stock_info):
         stock_info['timestamp'] = date + ' ' + stock_info['timestamp']
