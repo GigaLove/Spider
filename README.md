@@ -48,7 +48,7 @@ URL，即统一资源定位符，也就是我们说的网址，统一资源定�
 	import urllib
 	import urllib2
 
-	values = {"username":"18646083985@163.com","password":"199457"}
+	values = {"username":"xxx","password":"xxx"}
 	data = urllib.urlencode(values) 
 	url = "https://passport.csdn.net/account/login?from=http://my.csdn.net/my/mycsdn"
 	request = urllib2.Request(url,data)
@@ -206,7 +206,7 @@ PhantomJS是一个无界面的,可脚本编程的WebKit浏览器引擎。它原�
 		* PhantomJS 用来渲染解析JS
 		* Selenium 用来驱动以及与 Python 的对接
 		* Python 进行后期的处理
-	* 官方doc[Selenium](http://selenium-python.readthedocs.io/)
+	* [Selenium官方doc](http://selenium-python.readthedocs.io/)
 
 
 
